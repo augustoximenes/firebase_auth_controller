@@ -39,9 +39,40 @@ And use the `FirebaseAuthController`.
 
 
 ```dart
-final FirebaseAuthController _authFirebaseController = FirebaseAuthController();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(const MyApp());
+}
 
-@override
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  final FirebaseAuthController _authFirebaseController =
+      FirebaseAuthController();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -57,9 +88,9 @@ final FirebaseAuthController _authFirebaseController = FirebaseAuthController();
                 const Text(
                   'Click to login',
                 ),
-                Text(
-                  '$_counter',
-                  style: Theme.of(context).textTheme.headlineMedium,
+                OutlinedButton(
+                  child: const Text('Google'),
+                  onPressed: () {},
                 ),
               ],
             ),
@@ -68,6 +99,7 @@ final FirebaseAuthController _authFirebaseController = FirebaseAuthController();
       ),
     );
   }
+}
 ```
 
 ## Additional information

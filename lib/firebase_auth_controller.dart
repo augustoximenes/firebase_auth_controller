@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth_controller/firebase_auth_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 
 class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   FirebaseAuthController({
@@ -43,9 +43,9 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   Future<void> signInWithFacebook() async {
     value = SignningFirebaseAuthState();
     try {
-      final FacebookLoginResult result = await _facebookLogin.logIn(['email']);
+      final FacebookLoginResult result = await _facebookLogin.logIn();
       final AuthCredential credential =
-          FacebookAuthProvider.credential(result.accessToken.token);
+          FacebookAuthProvider.credential(result.accessToken!.token);
 
       await _firebaseAuth.signInWithCredential(credential);
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);

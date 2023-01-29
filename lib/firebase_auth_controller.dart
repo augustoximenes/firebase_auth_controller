@@ -21,7 +21,15 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   final GoogleSignIn _googleSignIn;
   final FacebookLogin _facebookLogin;
 
-  Future<bool> get isSignedIn async => _firebaseAuth.currentUser != null;
+  Future<bool> get isSignedIn async {
+    if (_firebaseAuth.currentUser != null) {
+      value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
+      return true;
+    } else {
+      value = SignedOutFirebaseAuthState();
+      return false;
+    }
+  }
 
   Future<void> signInWithGoogle() async {
     value = SignningFirebaseAuthState();

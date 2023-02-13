@@ -12,4 +12,8 @@ class SignedInFirebaseAuthState extends FirebaseAuthState {
 
 class SignningFirebaseAuthState extends FirebaseAuthState {}
 
-class ErrorFirebaseAuthState extends FirebaseAuthState {}
+class ErrorFirebaseAuthState extends FirebaseAuthState {
+  ErrorFirebaseAuthState({required this.exception});
+
+  Exception exception;
+}

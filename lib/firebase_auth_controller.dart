@@ -31,6 +31,8 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
     }
   }
 
+  User? get currentUser => _firebaseAuth.currentUser;
+
   Future<void> signInWithGoogle() async {
     value = SignningFirebaseAuthState();
     try {
@@ -45,23 +47,28 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
 
       await _firebaseAuth.signInWithCredential(credential);
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
-    } catch (e) {
-      value = ErrorFirebaseAuthState();
+    } on FirebaseAuthException catch (e) {
+      value = ErrorFirebaseAuthState(exception: e);
     }
   }
 
   Future<void> signInWithFacebook() async {
     value = SignningFirebaseAuthState();
     try {
-      final FacebookLoginResult result = await _facebookLogin.logIn();
+      final FacebookLoginResult result = await _facebookLogin.logIn(
+        permissions: [
+          FacebookPermission.publicProfile,
+          FacebookPermission.email,
+        ],
+      );
 
       final AuthCredential credential =
           FacebookAuthProvider.credential(result.accessToken!.token);
 
       await _firebaseAuth.signInWithCredential(credential);
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
-    } catch (e) {
-      value = ErrorFirebaseAuthState();
+    } on FirebaseAuthException catch (e) {
+      value = ErrorFirebaseAuthState(exception: e);
     }
   }
 
@@ -82,8 +89,8 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
 
       await _firebaseAuth.signInWithCredential(credential);
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
-    } catch (e) {
-      value = ErrorFirebaseAuthState();
+    } on FirebaseAuthException catch (e) {
+      value = ErrorFirebaseAuthState(exception: e);
     }
   }
 
@@ -93,10 +100,11 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
       await Future.wait([
         _firebaseAuth.signOut(),
         _googleSignIn.signOut(),
+        _facebookLogin.logOut(),
       ]);
       value = SignedOutFirebaseAuthState();
-    } catch (e) {
-      value = ErrorFirebaseAuthState();
+    } on FirebaseAuthException catch (e) {
+      value = ErrorFirebaseAuthState(exception: e);
     }
   }
 }

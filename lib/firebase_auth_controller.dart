@@ -3,6 +3,7 @@ library firebase_auth_controller;
 import 'package:firebase_auth_controller/providers/apple_provider.dart';
 import 'package:firebase_auth_controller/providers/facebook_provider.dart';
 import 'package:firebase_auth_controller/providers/google_provider.dart';
+import 'package:firebase_auth_controller/providers/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth_controller/firebase_auth_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,9 +15,9 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
         super(SignedOutFirebaseAuthState());
 
   final FirebaseAuth _firebaseAuth;
-  final GoogleProvider _googleProvider = GoogleProvider();
-  final FacebookProvider _facebookProvider = FacebookProvider();
-  final AppleProvider _appleProvider = AppleProvider();
+  final Provider _googleProvider = GoogleProvider();
+  final Provider _facebookProvider = FacebookProvider();
+  final Provider _appleProvider = AppleProvider();
 
   Future<bool> get isSignedIn async {
     if (_firebaseAuth.currentUser != null) {

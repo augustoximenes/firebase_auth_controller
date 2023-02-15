@@ -1,25 +1,22 @@
 library firebase_auth_controller;
 
+import 'package:firebase_auth_controller/providers/apple_provider.dart';
+import 'package:firebase_auth_controller/providers/facebook_provider.dart';
+import 'package:firebase_auth_controller/providers/google_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth_controller/firebase_auth_state.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   FirebaseAuthController({
     FirebaseAuth? firebaseAuth,
-    GoogleSignIn? googleSignIn,
-    FacebookLogin? facebookLogin,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn(),
-        _facebookLogin = facebookLogin ?? FacebookLogin(),
         super(SignedOutFirebaseAuthState());
 
   final FirebaseAuth _firebaseAuth;
-  final GoogleSignIn _googleSignIn;
-  final FacebookLogin _facebookLogin;
+  final GoogleProvider _googleProvider = GoogleProvider();
+  final FacebookProvider _facebookProvider = FacebookProvider();
+  final AppleProvider _appleProvider = AppleProvider();
 
   Future<bool> get isSignedIn async {
     if (_firebaseAuth.currentUser != null) {
@@ -36,16 +33,7 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   Future<void> signInWithGoogle() async {
     value = SignningFirebaseAuthState();
     try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-
-      final GoogleSignInAuthentication? googleAuth =
-          await googleUser?.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
-      );
-
-      await _firebaseAuth.signInWithCredential(credential);
+      await _googleProvider.signIn();
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
     } on FirebaseAuthException catch (e) {
       value = ErrorFirebaseAuthState(exception: e);
@@ -55,17 +43,7 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   Future<void> signInWithFacebook() async {
     value = SignningFirebaseAuthState();
     try {
-      final FacebookLoginResult result = await _facebookLogin.logIn(
-        permissions: [
-          FacebookPermission.publicProfile,
-          FacebookPermission.email,
-        ],
-      );
-
-      final AuthCredential credential =
-          FacebookAuthProvider.credential(result.accessToken!.token);
-
-      await _firebaseAuth.signInWithCredential(credential);
+      await _facebookProvider.signIn();
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
     } on FirebaseAuthException catch (e) {
       value = ErrorFirebaseAuthState(exception: e);
@@ -75,19 +53,7 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
   Future<void> signInWithApple() async {
     value = SignningFirebaseAuthState();
     try {
-      final appleIdCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.fullName,
-          AppleIDAuthorizationScopes.email,
-        ],
-      );
-
-      final AuthCredential credential = OAuthProvider('apple.com').credential(
-        idToken: appleIdCredential.identityToken,
-        accessToken: appleIdCredential.authorizationCode,
-      );
-
-      await _firebaseAuth.signInWithCredential(credential);
+      await _appleProvider.signIn();
       value = SignedInFirebaseAuthState(user: _firebaseAuth.currentUser);
     } on FirebaseAuthException catch (e) {
       value = ErrorFirebaseAuthState(exception: e);
@@ -99,8 +65,8 @@ class FirebaseAuthController extends ValueNotifier<FirebaseAuthState> {
     try {
       await Future.wait([
         _firebaseAuth.signOut(),
-        _googleSignIn.signOut(),
-        _facebookLogin.logOut(),
+        _googleProvider.signOut(),
+        _facebookProvider.signOut(),
       ]);
       value = SignedOutFirebaseAuthState();
     } on FirebaseAuthException catch (e) {
